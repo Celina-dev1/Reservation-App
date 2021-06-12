@@ -105,7 +105,7 @@ function dateIsFutureDate(req, res, next) {
   }
   next({
     status: 400,
-    message: "Reservation must be in the future",
+    message: "reservation_date must be in the future",
     }); 
 };
 
@@ -131,6 +131,34 @@ function bodyHasTimeProperty(req, res, next) {
     status: 400,
     message: "Reservation must include a reservation_time",
   });
+};
+
+function timeIsDuringOpenHours(req, res, next) {
+  const { data: { reservation_time, reservation_date } } = req.body;
+  const resDate = new Date(reservation_date);
+  const today = new Date();
+  //if reservation_date is today
+  if (resDate === today) {
+    //time must be later than the current time of day
+    let currentHour = today.getHours();
+    let currentMinutes = today.getMinutes();
+    const resTime = reservation_time.split(':');
+    if (resTime[0] > currentHour || (resTime[0] === currentHour && resTime[1] > currentMinutes)) {
+      return next();
+    }
+    next({
+      status: 400,
+      message: "Reservation must be at a future time",
+    });
+  } 
+  //otherwise time must be between 10:30am and 9:30pm
+  if (reservation_time < "10:30" || reservation_time > "21:30") {
+    next({
+      status: 400,
+      message: "reservation_time must be between 10:30AM and 9:30PM",
+    });
+  }
+  return next();
 };
 
 function bodyHasPeopleProperty(req, res, next) {
@@ -183,6 +211,7 @@ module.exports = {
     dateIsFutureDate,
     dayNotTuesday,
     bodyHasTimeProperty,
+    timeIsDuringOpenHours,
     bodyHasPeopleProperty,
     peoplePropertyIsValid,
     asyncErrorBoundary(create),
