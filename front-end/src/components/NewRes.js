@@ -31,7 +31,7 @@ function NewRes() {
         async function create() {
             try {
                 await createReservation(formData, abortController.signal);
-                history.push(`/dashboard?date=${formData.reservation_date}`); // go to dashboard page of new reservation date
+                history.push(`/dashboard/${formData.reservation_date}`); // go to dashboard page of new reservation date
             } catch (error) {
                 if (error.name === "AbortError") {
                     console.log("Aborted");
@@ -100,7 +100,8 @@ function NewRes() {
                 <label>Number of guests:</label>
                 <input 
                     name="people"
-                    type="number" 
+                    type="number"
+                    min="1" 
                     className="form-control"
                     value={formData.people}
                     onChange={handleChange}

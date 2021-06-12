@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { listReservations } from "../utils/api";
 import { today, previous, next, formatAsTime } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
@@ -10,10 +10,14 @@ import ErrorAlert from "../layout/ErrorAlert";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ defaultDate }) {
+function Dashboard({ date }) {
   const params = useParams();
+  
+  if (params.date) {
+    date = params.date;
+  }
 
-  const [date, setDate] = useState(params.date ? params.date : defaultDate)
+  //const [date, setDate] = useState(params.date ? params.date : defaultDate)
 
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
@@ -34,9 +38,17 @@ function Dashboard({ defaultDate }) {
       <h1>Dashboard</h1>
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations for {date}</h4>
-        <button onClick={() => setDate(previous(date))}>Previous</button>
-        <button onClick={() => setDate(next(date))}>Next</button>
-        <button onClick={() => setDate(today())}>Today</button>
+        <Link to={`/dashboard/${previous(date)}`} className="btn">
+          Previous
+        </Link>{" "}
+        &nbsp;
+        <Link to={`/dashboard/${next(date)}`} className="btn">
+          Next
+        </Link>{" "}
+        &nbsp;
+        <Link to={`/dashboard/${today()}`} className="btn">
+          Today
+        </Link>
       </div>
       <ErrorAlert error={reservationsError} />
       {/* {JSON.stringify(reservations)} */}
