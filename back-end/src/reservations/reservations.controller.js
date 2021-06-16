@@ -4,6 +4,19 @@
 const service = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
+async function reservationIdExists(req, res, next) {
+  const { reservation_id } = req.params;
+  const reservation = await service.read(reservation_id);
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
+  }
+  next({
+    status: 404,
+    message: `Reservation ${reservation_id} not found`,
+  });
+};
+
 function bodyHasData(req, res, next) {
   const body = req.body.data;
   if (body) {
@@ -174,7 +187,9 @@ function bodyHasPeopleProperty(req, res, next) {
 
 function peoplePropertyIsValid(req, res, next) {
   const { data: { people } } = req.body;
-  if (typeof(people) !== 'number' || people < 1) {
+  // Convert to actual data type
+  const peopleNum = parseInt(people);
+  if (isNaN(peopleNum) || peopleNum < 1) {
       next({
           status: 400,
           message: "Number of people is invalid",
@@ -188,14 +203,17 @@ async function list(req, res) {
     res.json({
     data,
     });
-}
+};
 
 async function create(req, res, next) {
   const data = await service.create(req.body.data)
   
-  res.status(201).json({ data })
-    
-}
+  res.status(201).json({ data })  
+};
+
+function read(req, res) {
+  res.json({ data: res.locals.reservation });
+};
 
 module.exports = {
   list: asyncErrorBoundary(list),
@@ -215,5 +233,9 @@ module.exports = {
     bodyHasPeopleProperty,
     peoplePropertyIsValid,
     asyncErrorBoundary(create),
+  ],
+  read: [
+    asyncErrorBoundary(reservationIdExists), 
+    read
   ],
 };

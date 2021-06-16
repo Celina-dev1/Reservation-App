@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { listReservations } from "../utils/api";
+import { listReservations, listTables } from "../utils/api";
 import { today, previous, next, formatAsTime } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 
@@ -17,10 +17,10 @@ function Dashboard({ date }) {
     date = params.date;
   }
 
-  //const [date, setDate] = useState(params.date ? params.date : defaultDate)
-
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
+
+  const [tables, setTables] = useState([]);
 
   useEffect(loadDashboard, [date]);
 
@@ -29,6 +29,9 @@ function Dashboard({ date }) {
     setReservationsError(null);
     listReservations({ date }, abortController.signal)
       .then(setReservations)
+      .catch(setReservationsError);
+    listTables(abortController.signal)
+      .then(setTables)
       .catch(setReservationsError);
     return () => abortController.abort();
   }
@@ -40,40 +43,58 @@ function Dashboard({ date }) {
         <h4 className="mb-0">Reservations for {date}</h4>
         <Link to={`/dashboard/${previous(date)}`} className="btn">
           Previous
-        </Link>{" "}
-        &nbsp;
+        </Link>
         <Link to={`/dashboard/${next(date)}`} className="btn">
           Next
-        </Link>{" "}
-        &nbsp;
+        </Link>
         <Link to={`/dashboard/${today()}`} className="btn">
           Today
         </Link>
       </div>
       <ErrorAlert error={reservationsError} />
-      {/* {JSON.stringify(reservations)} */}
       <table class="table table-striped table-dark">
-  <thead>
-    <tr>
-      <th scope="col">Reservation Time</th>
-      <th scope="col">First Name</th>
-      <th scope="col">Last Name</th>
-      <th scope="col">Phone Number</th>
-      <th scope="col">Number of Guests</th>
-    </tr>
-  </thead>
-  <tbody>
-    {reservations.map((reservation) => (
-      <tr key={reservation.reservation_id}>
-        <td>{formatAsTime(reservation.reservation_time)}</td>
-        <td>{reservation.first_name}</td>
-        <td>{reservation.last_name}</td>
-        <td>{reservation.mobile_number}</td>
-        <td>{reservation.people}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+        <thead>
+          <tr>
+            <th scope="col">Reservation Time</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Phone Number</th>
+            <th scope="col">Number of Guests</th>
+            <th scope="col">Seat Reservation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reservations.map((reservation) => (
+            <tr key={reservation.reservation_id}>
+              <td>{formatAsTime(reservation.reservation_time)}</td>
+              <td>{reservation.first_name}</td>
+              <td>{reservation.last_name}</td>
+              <td>{reservation.mobile_number}</td>
+              <td>{reservation.people}</td>
+              <td><a href={`/reservations/${reservation.reservation_id}/seat`}>Seat</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <table class="table table-striped table-dark">
+        <thead>
+          <tr>
+            <th scope="col">Table Name</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tables.map((table) => (
+            <tr key={table.table_id}>
+              <td>{table.table_name}</td>
+              <td>{table.capacity}</td>
+              <td>status</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }
