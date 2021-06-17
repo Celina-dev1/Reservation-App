@@ -60,21 +60,42 @@ function NewRes() {
          return false;
     };
 
-    // const dateInPast = (date) => {
-    //     const today = new Date();
-    //     const resDate = new Date(date);
+    const dateInPast = (date) => {
+        const today = new Date();
+        const resDate = new Date(date);
 
-    //     if (resDate.toISOString().substring(0, 10) >= today.toISOString().substring(0, 10)) {
-    //         return false;
-    //     }
-    //     return true;
-    // };
+        if (resDate.toLocaleDateString() >= today.toLocaleDateString()) {
+            return false;
+        }
+        return true;
+    };
+
+    const invalidTime = (date, time) => {
+        const resDate = new Date(date);
+        const today = new Date();
+        const todayTime = today.toLocaleTimeString();
+        today.setHours(0,0,0,0);
+
+        if (resDate.valueOf() === today.valueOf()) {
+            if (time > todayTime && time < "21:30") {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            if (time < "10:30" || time > "21:30") {
+                return true;
+            }
+            return false;
+        }
+    }
 
     // const invalidTime = (date, time) => {
     //     const resDate = new Date(date);
     //     const today = new Date();
+    //     today.setHours(0,0,0,0);
     //     //if reservation_date is today
-    //     if (resDate.toISOString().substring(0, 10) === today.toISOString().substring(0, 10)) {
+    //     if (resDate.valueOf() === today.valueOf()) {
     //         //time must be later than the current time of day and earlier than 9:30pm
     //         let currentHour = today.getHours();
     //         let currentMinutes = today.getMinutes();
@@ -132,7 +153,7 @@ function NewRes() {
 
                 <label>Date:</label>
                 {isTuesday(formData.reservation_date) ? <p className="alert alert-danger">We are closed on Tuesdays</p> : null}
-                {/* {dateInPast(formData.reservation_date) ? <p className="alert alert-danger">Date cannot be in the past</p> : null} */}
+                {dateInPast(formData.reservation_date) ? <p className="alert alert-danger">Date cannot be in the past</p> : null}
                 <input 
                     name="reservation_date"
                     type="date" 
@@ -143,7 +164,7 @@ function NewRes() {
                 />
 
                 <label>Time:</label>
-                {/* {invalidTime(formData.reservation_date, formData.reservation_time) ? <p className="alert alert-danger">We accept reservations from 10:30am to 9:30pm</p> : null} */}
+                {invalidTime(formData.reservation_date, formData.reservation_time) ? <p className="alert alert-danger">We accept reservations from 10:30am to 9:30pm</p> : null}
                 <input 
                     name="reservation_time"
                     type="time" 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useHistory } from "react-router-dom";
-import { listReservations, listTables } from "../utils/api";
+import { useHistory } from "react-router-dom";
+import { listReservations, listTables, finishTable } from "../utils/api";
 import { today, previous, next, formatAsTime } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
@@ -12,11 +12,6 @@ import useQuery from "../utils/useQuery";
  * @returns {JSX.Element}
  */
 function Dashboard({ date }) {
-  // const params = useParams();
-  
-  // if (params.date) {
-  //   date = params.date;
-  // }
   const history = useHistory();
   const query = useQuery();
   const queryDate = query.get("date")
@@ -43,26 +38,37 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
+  const handleFinish = (table_id) => {
+    //e.preventDefault();
+    const abortController = new AbortController();
+    async function finish() {
+        try {
+          if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
+            await finishTable(table_id, abortController.signal);
+            history.push(`/dashboard`);
+          }
+        } catch (error) {
+            if (error.name === "AbortError") {
+                console.log("Aborted");
+              } else {
+                throw error;
+              }
+        }
+    }
+    finish();
+  }
+
   return (
     <main>
       <h1>Dashboard</h1>
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations for {date}</h4>
-        {/* <Link to={`/dashboard/${previous(date)}`} className="btn">
-          Previous
-        </Link> */}
         <button onClick={() => history.push(`/dashboard?date=${previous(date)}`)}>Previous</button>
-        {/* <Link to={`/dashboard/${next(date)}`} className="btn">
-          Next
-        </Link> */}
         <button onClick={() => history.push(`/dashboard?date=${next(date)}`)}>Next</button>
-        {/* <Link to={`/dashboard/${today()}`} className="btn">
-          Today
-        </Link> */}
         <button onClick={() => history.push(`/dashboard?date=${today()}`)}>Today</button>
       </div>
       <ErrorAlert error={reservationsError} />
-      <table class="table table-striped table-dark">
+      <table className="table table-striped table-dark">
         <thead>
           <tr>
             <th scope="col">Reservation Time</th>
@@ -87,12 +93,13 @@ function Dashboard({ date }) {
         </tbody>
       </table>
 
-      <table class="table table-striped table-dark">
+      <table className="table table-striped table-dark">
         <thead>
           <tr>
             <th scope="col">Table Name</th>
             <th scope="col">Capacity</th>
             <th scope="col">Status</th>
+            <th scope="col">Finish</th>
           </tr>
         </thead>
         <tbody>
@@ -101,6 +108,7 @@ function Dashboard({ date }) {
               <td>{table.table_name}</td>
               <td>{table.capacity}</td>
               <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "Free" : "Occupied"}</td>
+              <td data-table-id-finish={table.table_id}><button onClick={() => handleFinish(table.table_id)} disabled={table.reservation_id === null}>Finish</button></td>
             </tr>
           ))}
         </tbody>

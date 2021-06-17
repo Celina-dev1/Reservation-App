@@ -14,9 +14,19 @@ const reservationsService = require("../reservations/reservations.service");
     }
     next({
       status: 404,
-      message: `Table not found`,
+      message: `Table ${table_id} not found`,
     });
   };
+
+  function tableIsOccupied(req, res, next) {
+    if (res.locals.table.reservation_id === null) {
+        next({
+            status: 400,
+            message: "table is not occupied",
+          });
+    }
+    return next();
+};
 
   function bodyHasResIdProperty(req, res, next) {
     const { data: { reservation_id } } = req.body;
@@ -143,6 +153,13 @@ const reservationsService = require("../reservations/reservations.service");
     const updated = await service.read(updatedTable.table_id)
     
     res.json({ data: updated });
+};
+
+async function finish(req, res) {
+    const data = await service.finish(res.locals.table.table_id);
+    res.json({
+        data,
+        });
 }
 
   module.exports = {
@@ -163,5 +180,10 @@ const reservationsService = require("../reservations/reservations.service");
         asyncErrorBoundary(resIdExists),
         sufficientCapacity,
         update,
+    ],
+    finish: [
+        asyncErrorBoundary(tableIdExists),
+        tableIsOccupied,
+        asyncErrorBoundary(finish),
     ]
   };

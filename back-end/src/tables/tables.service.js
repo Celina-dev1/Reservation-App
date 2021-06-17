@@ -26,9 +26,17 @@ function update(updatedTable) {
       .update(updatedTable);
 };
 
+function finish(table_id) {
+    return knex("tables")
+        .where({ table_id })
+        .update({reservation_id: null});
+;
+}
+
 module.exports = {
     list,
     create,
     read,
     update,
+    finish,
 };
