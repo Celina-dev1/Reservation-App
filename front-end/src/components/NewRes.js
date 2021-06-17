@@ -12,7 +12,7 @@ function NewRes() {
         last_name: "",
         mobile_number: "",
         reservation_date: "YYYY-MM-DD",
-        reservation_time: "",
+        reservation_time: "10:30",
         people: 1,
     };
     
@@ -71,24 +71,36 @@ function NewRes() {
     };
 
     const invalidTime = (date, time) => {
-        const resDate = new Date(date);
-        const today = new Date();
-        const todayTime = today.toLocaleTimeString();
-        today.setHours(0,0,0,0);
+        const res = new Date(`${date} ${time}`);
 
-        if (resDate.valueOf() === today.valueOf()) {
-            if (time > todayTime && time < "21:30") {
-                return false;
-            } else {
+        if (res.getHours() < 10 || (res.getHours() === 10 && res.getMinutes() < 30)) {
                 return true;
-            }
-        } else {
-            if (time < "10:30" || time > "21:30") {
-                return true;
-            }
-            return false;
         }
+        else if (res.getHours() > 21 || (res.getHours() === 21 && res.getMinutes() > 30)) {
+            return true;
+        }
+            return false;
     }
+
+    // const invalidTime = (date, time) => {
+    //     const resDate = new Date(date);
+    //     const today = new Date();
+    //     const todayTime = today.toLocaleTimeString();
+    //     today.setHours(0,0,0,0);
+
+    //     if (resDate.valueOf() === today.valueOf()) {
+    //         if (time > todayTime && time < "21:30") {
+    //             return false;
+    //         } else {
+    //             return true;
+    //         }
+    //     } else {
+    //         if (time < "10:30" || time > "21:30") {
+    //             return true;
+    //         }
+    //         return false;
+    //     }
+    // }
 
     // const invalidTime = (date, time) => {
     //     const resDate = new Date(date);
@@ -151,6 +163,10 @@ function NewRes() {
                     required
                 />  
 
+{/* 
+https://flaviocopes.com/react-conditional-rendering/
+https://flaviocopes.com/react-hook-useref/
+*/}
                 <label>Date:</label>
                 {isTuesday(formData.reservation_date) ? <p className="alert alert-danger">We are closed on Tuesdays</p> : null}
                 {dateInPast(formData.reservation_date) ? <p className="alert alert-danger">Date cannot be in the past</p> : null}

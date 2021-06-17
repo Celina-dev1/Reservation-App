@@ -73,7 +73,7 @@ describe("US-05 - Finish an occupied table - E2E", () => {
       const finishButtonSelector = `[data-table-id-finish="${table.table_id}"]`;
       await page.waitForSelector(finishButtonSelector);
 
-      page.on("dialog", async (dialog) => {
+      page.on("dialog", async (dialog) => { // RB: alert box is a dialog event?
         expect(dialog.message()).toContain(
           "Is this table ready to seat new guests?"
         );
@@ -83,7 +83,7 @@ describe("US-05 - Finish an occupied table - E2E", () => {
       await page.click(finishButtonSelector);
 
       await page.waitForResponse((response) => {
-        return response.url().endsWith(`/tables`);
+        return response.url().endsWith(`/tables`); // RB: Maybe dashboard?
       });
 
       await page.screenshot({

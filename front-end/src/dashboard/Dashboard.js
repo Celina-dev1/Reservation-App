@@ -41,12 +41,14 @@ function Dashboard({ date }) {
   const handleFinish = (table_id) => {
     //e.preventDefault();
     const abortController = new AbortController();
-    async function finish() {
-        try {
-          if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
+    if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
+      async function finish() {
+        try { 
             await finishTable(table_id, abortController.signal);
+            const refreshedTables = await listTables(abortController.signal);
+            setTables(refreshedTables);
             history.push(`/dashboard`);
-          }
+          
         } catch (error) {
             if (error.name === "AbortError") {
                 console.log("Aborted");
@@ -54,8 +56,9 @@ function Dashboard({ date }) {
                 throw error;
               }
         }
+      }
+      finish();
     }
-    finish();
   }
 
   return (
@@ -107,8 +110,8 @@ function Dashboard({ date }) {
             <tr key={table.table_id}>
               <td>{table.table_name}</td>
               <td>{table.capacity}</td>
-              <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "Free" : "Occupied"}</td>
-              <td data-table-id-finish={table.table_id}><button onClick={() => handleFinish(table.table_id)} disabled={table.reservation_id === null}>Finish</button></td>
+              <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "free" : "occupied"}</td>
+              <td><button data-table-id-finish={table.table_id} onClick={() => handleFinish(table.table_id)} disabled={table.reservation_id === null}>Finish</button></td>
             </tr>
           ))}
         </tbody>

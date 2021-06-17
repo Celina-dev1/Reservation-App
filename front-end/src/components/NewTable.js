@@ -64,6 +64,7 @@ function NewTable() {
                 <input 
                     name="capacity"
                     type="number"
+                    min="1"
                     className="form-control"
                     value={formData.capacity}
                     onChange={handleChange}
