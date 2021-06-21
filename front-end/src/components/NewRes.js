@@ -1,7 +1,7 @@
 import React, {Fragment, useState} from "react";
 import { useHistory } from "react-router-dom";
+import ListResErrors from "./ListResErrors";
 import { createReservation } from "../utils/api";
-//import { ErrorAlert } from "../layout/ErrorAlert";
 
 
 function NewRes() {
@@ -17,6 +17,7 @@ function NewRes() {
     };
     
     const [formData, setFormData] = useState({ ...initialFormState });
+    const [errors, setErrors] = useState([]);
 
     const handleChange = ({ target }) => {
         if (target.name === "people") {
@@ -36,19 +37,30 @@ function NewRes() {
         e.preventDefault();
         const abortController = new AbortController();
         console.log(formData)
-        async function create() {
-            try {
-                await createReservation(formData, abortController.signal);
-                history.push(`/dashboard/${formData.reservation_date}`); // go to dashboard page of new reservation date
-            } catch (error) {
-                if (error.name === "AbortError") {
-                    console.log("Aborted");
-                  } else {
-                    throw error;
-                  }
-            }
+        
+        if (isTuesday(formData.reservation_date)) {
+            setErrors([...errors, "We are closed on Tuesdays"])
         }
-        create();
+        else if (dateInPast(formData.reservation_date)) {
+            setErrors([...errors, "Reservation date cannot be in the past"])
+        }
+        else if (invalidTime(formData.reservation_date, formData.reservation_time)) {
+            setErrors([...errors, "We accept reservations from 10:30am to 9:30pm"])
+        } else {
+            async function create() {
+                try {
+                    await createReservation(formData, abortController.signal);
+                    history.push(`/dashboard?date=${formData.reservation_date}`); // go to dashboard page of new reservation date
+                } catch (error) {
+                    if (error.name === "AbortError") {
+                        console.log("Aborted");
+                      } else {
+                        throw error;
+                      }
+                }
+            }
+            create();
+        } 
     }
 
     const isTuesday = (date) => {
@@ -82,56 +94,10 @@ function NewRes() {
             return false;
     }
 
-    // const invalidTime = (date, time) => {
-    //     const resDate = new Date(date);
-    //     const today = new Date();
-    //     const todayTime = today.toLocaleTimeString();
-    //     today.setHours(0,0,0,0);
-
-    //     if (resDate.valueOf() === today.valueOf()) {
-    //         if (time > todayTime && time < "21:30") {
-    //             return false;
-    //         } else {
-    //             return true;
-    //         }
-    //     } else {
-    //         if (time < "10:30" || time > "21:30") {
-    //             return true;
-    //         }
-    //         return false;
-    //     }
-    // }
-
-    // const invalidTime = (date, time) => {
-    //     const resDate = new Date(date);
-    //     const today = new Date();
-    //     today.setHours(0,0,0,0);
-    //     //if reservation_date is today
-    //     if (resDate.valueOf() === today.valueOf()) {
-    //         //time must be later than the current time of day and earlier than 9:30pm
-    //         let currentHour = today.getHours();
-    //         let currentMinutes = today.getMinutes();
-    //         const resTime = time.split(':');
-    //         if (resTime[0] > currentHour && time < "21:30") {
-    //             return false;
-    //         }
-    //         else if ((resTime[0] === currentHour && resTime[1] > currentMinutes) && time < "21:30") {
-    //             return false;
-    //         }
-    //         return true;
-    //     } 
-    //     //otherwise time must be between 10:30am and 9:30pm
-    //     else {
-    //         if (time < "10:30" || time > "21:30") {
-    //             return true;
-    //         }
-    //         return false;
-    //     } 
-    // };
-
     return (
         <Fragment>
             <h2>Create New Reservation</h2>
+            <ListResErrors errors={errors} />
             <form className="form-group" onSubmit={handleNewRes}>
                 <label>First Name:</label>
                 <input 
@@ -168,8 +134,6 @@ https://flaviocopes.com/react-conditional-rendering/
 https://flaviocopes.com/react-hook-useref/
 */}
                 <label>Date:</label>
-                {isTuesday(formData.reservation_date) ? <p className="alert alert-danger">We are closed on Tuesdays</p> : null}
-                {dateInPast(formData.reservation_date) ? <p className="alert alert-danger">Date cannot be in the past</p> : null}
                 <input 
                     name="reservation_date"
                     type="date" 
@@ -180,7 +144,6 @@ https://flaviocopes.com/react-hook-useref/
                 />
 
                 <label>Time:</label>
-                {invalidTime(formData.reservation_date, formData.reservation_time) ? <p className="alert alert-danger">We accept reservations from 10:30am to 9:30pm</p> : null}
                 <input 
                     name="reservation_time"
                     type="time" 

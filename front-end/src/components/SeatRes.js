@@ -3,7 +3,7 @@
 //on submit update the selected table with the reservation id and go to the dashboard
 import React, { Fragment, useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { listTables, readReservation, seatTable } from "../utils/api";
+import { listTables, readReservation, seatTable, updateResStatus } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 function SeatRes() {
@@ -35,7 +35,9 @@ function SeatRes() {
         const abortController = new AbortController();
         async function seat() {
             try {
-                await seatTable(tableToUpdate.table_id, reservation.reservation_id, abortController.signal);
+                await seatTable(tableToUpdate.table_id, reservation_id, abortController.signal);
+                //update the reservation to have a status of 'seated'
+                await updateResStatus(reservation_id, { status: "seated" }, abortController.signal);
                 history.push(`/dashboard`);
             } catch (error) {
                 if (error.name === "AbortError") {
@@ -46,10 +48,12 @@ function SeatRes() {
             }
         }
         seat();
+        return () => {
+            abortController.abort();
+          };
     }
 
     const handleChange = ({ target }) => {
-       //set the table to be updated to the option selected
        const currentTable = tables.find((table) => table.table_id === Number(target.value));
        console.log(currentTable);
        setTableToUpdate(currentTable);
@@ -61,6 +65,7 @@ function SeatRes() {
         }
         return false;
     }
+
     //filter the tables to only map and display the tables that are free
 
     return (

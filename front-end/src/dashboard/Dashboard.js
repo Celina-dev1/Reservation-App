@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { listReservations, listTables, finishTable } from "../utils/api";
+import { listReservations, listTables, finishTable, updateResStatus } from "../utils/api";
 import { today, previous, next, formatAsTime } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
@@ -38,16 +38,22 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
-  const handleFinish = (table_id) => {
+  //filter out the reservations with status 'finished' and map through those on dashboard
+  const finishedResFilter = reservations.filter((reservation) => reservation.status !== "finished");
+
+  const handleFinish = (table) => {
     //e.preventDefault();
     const abortController = new AbortController();
     if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
       async function finish() {
         try { 
-            await finishTable(table_id, abortController.signal);
-            const refreshedTables = await listTables(abortController.signal);
-            setTables(refreshedTables);
-            history.push(`/dashboard`);
+            await finishTable(table.table_id, abortController.signal);
+            //update reservation status to 'finished'
+            await updateResStatus(table.reservation_id, { status: "finished" }, abortController.signal)
+            await loadDashboard();
+            // const refreshedTables = await listTables(abortController.signal);
+            // setTables(refreshedTables);
+            //history.push(`/dashboard`);
           
         } catch (error) {
             if (error.name === "AbortError") {
@@ -58,6 +64,9 @@ function Dashboard({ date }) {
         }
       }
       finish();
+      return () => {
+        abortController.abort();
+      };
     }
   }
 
@@ -79,18 +88,20 @@ function Dashboard({ date }) {
             <th scope="col">Last Name</th>
             <th scope="col">Phone Number</th>
             <th scope="col">Number of Guests</th>
+            <th scope="col">Reservation Status</th>
             <th scope="col">Seat Reservation</th>
           </tr>
         </thead>
         <tbody>
-          {reservations.map((reservation) => (
+          {finishedResFilter.map((reservation) => (
             <tr key={reservation.reservation_id}>
               <td>{formatAsTime(reservation.reservation_time)}</td>
               <td>{reservation.first_name}</td>
               <td>{reservation.last_name}</td>
               <td>{reservation.mobile_number}</td>
               <td>{reservation.people}</td>
-              <td><a href={`/reservations/${reservation.reservation_id}/seat`}>Seat</a></td>
+              <td data-reservation-id-status={reservation.reservation_id}>{reservation.status}</td>
+              <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/seat`}>Seat</a> : null}</td>
             </tr>
           ))}
         </tbody>
@@ -111,7 +122,7 @@ function Dashboard({ date }) {
               <td>{table.table_name}</td>
               <td>{table.capacity}</td>
               <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "free" : "occupied"}</td>
-              <td><button data-table-id-finish={table.table_id} onClick={() => handleFinish(table.table_id)} disabled={table.reservation_id === null}>Finish</button></td>
+              <td><button data-table-id-finish={table.table_id} onClick={() => handleFinish(table)} disabled={table.reservation_id === null}>Finish</button></td>
             </tr>
           ))}
         </tbody>

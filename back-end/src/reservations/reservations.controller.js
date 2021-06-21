@@ -17,6 +17,16 @@ async function reservationIdExists(req, res, next) {
   });
 };
 
+function statusValid(req, res, next) {
+  if (res.locals.reservation.status === "booked" || res.locals.reservation.status === "seated") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "Status update not allowed for this reservation",
+  });
+}
+
 function bodyHasData(req, res, next) {
   const body = req.body.data;
   if (body) {
@@ -198,6 +208,16 @@ function peoplePropertyIsValid(req, res, next) {
   return next();
 };
 
+function initialStatusValid(req, res, next){
+  const { data: { status } } = req.body;
+  if(status !== "booked"){
+    next({
+      status: 400,
+      message: `Initial reservation status must be "booked"`
+    })
+  }
+  return next();
+}
 async function list(req, res) {
   const data = await service.list(req.query.date);
     res.json({
@@ -213,6 +233,23 @@ async function create(req, res, next) {
 
 function read(req, res) {
   res.json({ data: res.locals.reservation });
+};
+
+async function updateStatus(req, res) {
+  // const updatedRes = {
+  //   ...req.body.data,
+  //   reservation_id: res.locals.reservation.reservation_id,
+  // };
+  const updatedRes = {
+    ...res.locals.reservation,
+    ...req.body,
+  };
+
+  await service.updateStatus(updatedRes);
+
+  const updated = await service.read(updatedRes.reservation_id)
+  
+  res.json({ data: updated });
 };
 
 module.exports = {
@@ -232,10 +269,16 @@ module.exports = {
     timeIsDuringOpenHours,
     bodyHasPeopleProperty,
     peoplePropertyIsValid,
+    //initialStatusValid,
     asyncErrorBoundary(create),
   ],
   read: [
     asyncErrorBoundary(reservationIdExists), 
     read
   ],
+  updateStatus: [
+    asyncErrorBoundary(reservationIdExists),
+    statusValid,
+    asyncErrorBoundary(updateStatus),
+  ]
 };
