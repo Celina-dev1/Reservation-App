@@ -5,6 +5,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { listTables, readReservation, seatTable, updateResStatus } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
+import ListErrors from "./ListErrors";
 
 function SeatRes() {
     const history = useHistory();
@@ -15,6 +16,7 @@ function SeatRes() {
 
     const [tables, setTables] = useState([]);
     const [tableToUpdate, setTableToUpdate] = useState({});
+    const [errors, setErrors] = useState([]);
 
     useEffect(load, [reservation_id]);
 
@@ -33,24 +35,29 @@ function SeatRes() {
     const handleSeatTable = (e) => {
         e.preventDefault();
         const abortController = new AbortController();
-        async function seat() {
-            try {
-                await seatTable(tableToUpdate.table_id, reservation_id, abortController.signal);
-                //update the reservation to have a status of 'seated'
-                await updateResStatus(reservation_id, { status: "seated" }, abortController.signal);
-                history.push(`/dashboard`);
-            } catch (error) {
-                if (error.name === "AbortError") {
-                    console.log("Aborted");
-                  } else {
-                    throw error;
-                  }
+        if (!sufficientCapacity()) {
+            setErrors([...errors, "Table selected cannot fit the current reservation"])
+        }else {
+            async function seat() {
+                try {
+                    await seatTable(tableToUpdate.table_id, reservation_id, abortController.signal);
+                    //update the reservation to have a status of 'seated'
+                    await updateResStatus(reservation_id, { status: "seated" }, abortController.signal);
+                    history.push(`/dashboard`);
+                } catch (error) {
+                    if (error.name === "AbortError") {
+                        console.log("Aborted");
+                      } else {
+                        throw error;
+                      }
+                }
             }
+            seat();
+            return () => {
+                abortController.abort();
+              };
         }
-        seat();
-        return () => {
-            abortController.abort();
-          };
+        
     }
 
     const handleChange = ({ target }) => {
@@ -85,7 +92,7 @@ function SeatRes() {
                     </option>
                     ))}
                 </select>
-                {!sufficientCapacity() ? <p className="alert alert-danger">Table selected cannot fit the current reservation</p> : null}
+                <ListErrors errors={errors} />
                 <button 
                 className="btn btn-secondary my-2 mr-2"
                 onClick={() => history.goBack()}>Cancel</button>

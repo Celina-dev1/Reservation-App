@@ -132,3 +132,12 @@ export async function updateResStatus(reservation_id, status, signal) {
     []);
 }
 
+export async function searchByPhone(phone, signal){
+  const url = new URL(`${API_BASE_URL}/reservations?mobile_number=${phone}`);
+  return await fetchJson(url, {
+    headers, 
+    signal,
+    method: "GET"}, 
+    []);
+}
+

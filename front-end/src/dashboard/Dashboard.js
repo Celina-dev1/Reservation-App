@@ -38,23 +38,16 @@ function Dashboard({ date }) {
     return () => abortController.abort();
   }
 
-  //filter out the reservations with status 'finished' and map through those on dashboard
-  const finishedResFilter = reservations.filter((reservation) => reservation.status !== "finished");
-
   const handleFinish = (table) => {
-    //e.preventDefault();
     const abortController = new AbortController();
     if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
       async function finish() {
         try { 
             await finishTable(table.table_id, abortController.signal);
             //update reservation status to 'finished'
-            await updateResStatus(table.reservation_id, { status: "finished" }, abortController.signal)
+            await updateResStatus(table.reservation_id, { status: "finished" }, abortController.signal);
+            //reload the dashboard
             await loadDashboard();
-            // const refreshedTables = await listTables(abortController.signal);
-            // setTables(refreshedTables);
-            //history.push(`/dashboard`);
-          
         } catch (error) {
             if (error.name === "AbortError") {
                 console.log("Aborted");
@@ -93,7 +86,7 @@ function Dashboard({ date }) {
           </tr>
         </thead>
         <tbody>
-          {finishedResFilter.map((reservation) => (
+          {reservations.map((reservation) => (
             <tr key={reservation.reservation_id}>
               <td>{formatAsTime(reservation.reservation_time)}</td>
               <td>{reservation.first_name}</td>
@@ -122,7 +115,7 @@ function Dashboard({ date }) {
               <td>{table.table_name}</td>
               <td>{table.capacity}</td>
               <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "free" : "occupied"}</td>
-              <td><button data-table-id-finish={table.table_id} onClick={() => handleFinish(table)} disabled={table.reservation_id === null}>Finish</button></td>
+              <td>{table.reservation_id !== null ? <button data-table-id-finish={table.table_id} onClick={() => handleFinish(table)}>Finish</button> : null}</td>
             </tr>
           ))}
         </tbody>

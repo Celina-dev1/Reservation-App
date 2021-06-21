@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import ErrorAlert from "../layout/ErrorAlert";
 
-function ListResErrors({errors}) {
+function ListErrors({errors}) {
     if (errors.length > 0) {
         return (
             <Fragment>
@@ -13,4 +13,4 @@ function ListResErrors({errors}) {
     return null;
 }
 
-export default ListResErrors;
+export default ListErrors;

@@ -17,15 +17,27 @@ async function reservationIdExists(req, res, next) {
   });
 };
 
-function statusValid(req, res, next) {
-  if (res.locals.reservation.status === "booked" || res.locals.reservation.status === "seated") {
+function statusNotFinished(req, res, next) {
+  if (res.locals.reservation.status === "finished") {
+    next({
+      status: 400,
+      message: `finished reservations cannot be updated`,
+    });
+  }
+  return next();
+};
+
+function newStatusValid(req, res, next) {
+  const { data: { status } } = req.body;
+  const validStatus = ["booked", "seated", "finished", "cancelled"]
+  if (validStatus.includes(status)) {
     return next();
   }
   next({
     status: 400,
-    message: "Status update not allowed for this reservation",
+    message: `Status update ${status} not allowed for this reservation`,
   });
-}
+};
 
 function bodyHasData(req, res, next) {
   const body = req.body.data;
@@ -210,19 +222,28 @@ function peoplePropertyIsValid(req, res, next) {
 
 function initialStatusValid(req, res, next){
   const { data: { status } } = req.body;
-  if(status !== "booked"){
+  if(status == "seated" || status == "finished"){
     next({
       status: 400,
-      message: `Initial reservation status must be "booked"`
+      message: `${status} is not a valid status`
     })
   }
   return next();
 }
 async function list(req, res) {
-  const data = await service.list(req.query.date);
+  const { date, mobile_number } = req.query;
+  if (date) {
+    const data = await service.list(date);
     res.json({
     data,
     });
+  }
+  else if (mobile_number) {
+    const data = await service.search(mobile_number);
+    res.json({
+      data,
+      });
+  }
 };
 
 async function create(req, res, next) {
@@ -237,17 +258,13 @@ function read(req, res) {
 
 async function updateStatus(req, res) {
   // const updatedRes = {
-  //   ...req.body.data,
-  //   reservation_id: res.locals.reservation.reservation_id,
+  //   ...res.locals.reservation,
+  //   ...req.body,
   // };
-  const updatedRes = {
-    ...res.locals.reservation,
-    ...req.body,
-  };
 
-  await service.updateStatus(updatedRes);
+  await service.updateStatus(res.locals.reservation.reservation_id, req.body);
 
-  const updated = await service.read(updatedRes.reservation_id)
+  const updated = await service.read(res.locals.reservation.reservation_id)
   
   res.json({ data: updated });
 };
@@ -269,7 +286,7 @@ module.exports = {
     timeIsDuringOpenHours,
     bodyHasPeopleProperty,
     peoplePropertyIsValid,
-    //initialStatusValid,
+    initialStatusValid,
     asyncErrorBoundary(create),
   ],
   read: [
@@ -278,7 +295,8 @@ module.exports = {
   ],
   updateStatus: [
     asyncErrorBoundary(reservationIdExists),
-    statusValid,
+    // statusNotFinished,
+    // newStatusValid,
     asyncErrorBoundary(updateStatus),
   ]
 };

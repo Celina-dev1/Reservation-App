@@ -1,6 +1,6 @@
 import React, {Fragment, useState} from "react";
 import { useHistory } from "react-router-dom";
-import ListResErrors from "./ListResErrors";
+import ListErrors from "./ListErrors";
 import { createReservation } from "../utils/api";
 
 
@@ -97,7 +97,7 @@ function NewRes() {
     return (
         <Fragment>
             <h2>Create New Reservation</h2>
-            <ListResErrors errors={errors} />
+            <ListErrors errors={errors} />
             <form className="form-group" onSubmit={handleNewRes}>
                 <label>First Name:</label>
                 <input 
