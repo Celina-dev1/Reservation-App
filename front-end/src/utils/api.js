@@ -141,3 +141,14 @@ export async function searchByPhone(phone, signal){
     []);
 }
 
+export async function updateReservation(updatedReservation, signal) {
+  const url = `${API_BASE_URL}/reservations/${updatedReservation.reservation_id}`;
+  return await fetchJson(url, {
+    headers, 
+    signal,
+    method: "PUT",
+    body: JSON.stringify({data: updatedReservation})}, 
+    []);
+}
+
+

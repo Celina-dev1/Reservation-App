@@ -40,10 +40,11 @@ function SeatRes() {
         }else {
             async function seat() {
                 try {
+                    await updateResStatus(reservation_id, {data: { status: "seated" } }, abortController.signal);
                     await seatTable(tableToUpdate.table_id, reservation_id, abortController.signal);
                     //update the reservation to have a status of 'seated'
-                    await updateResStatus(reservation_id, { status: "seated" }, abortController.signal);
-                    history.push(`/dashboard`);
+                    
+                    history.push(`/dashboard?date=${reservation.reservation_date}`);
                 } catch (error) {
                     if (error.name === "AbortError") {
                         console.log("Aborted");

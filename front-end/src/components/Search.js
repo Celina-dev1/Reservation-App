@@ -1,5 +1,5 @@
 import React, {Fragment, useState} from "react";
-import { searchByPhone } from "../utils/api";
+import { searchByPhone, updateResStatus } from "../utils/api";
 import { formatAsTime } from "../utils/date-time";
 
 function Search() {
@@ -32,6 +32,27 @@ function Search() {
         }
         search();
     }
+
+    const handleCancelRes = (reservation_id) => {
+        const abortController = new AbortController();
+        if (window.confirm("Do you want to cancel this reservation? This cannot be undone.")) {
+          async function cancel() {
+            try { 
+                await updateResStatus(reservation_id, { status: "cancelled" }, abortController.signal);
+            } catch (error) {
+                if (error.name === "AbortError") {
+                    console.log("Aborted");
+                  } else {
+                    throw error;
+                  }
+            }
+          }
+          cancel();
+          return () => {
+            abortController.abort();
+          };
+        }
+      }
 
     return (
         <Fragment>
@@ -66,6 +87,8 @@ function Search() {
                         <th scope="col">Phone Number</th>
                         <th scope="col">Number of Guests</th>
                         <th scope="col">Reservation Status</th>
+                        <th scope="col">Edit Reservation</th>
+                        <th scope="col">Cancel Reservation</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -77,6 +100,8 @@ function Search() {
                         <td>{reservation.mobile_number}</td>
                         <td>{reservation.people}</td>
                         <td data-reservation-id-status={reservation.reservation_id}>{reservation.status}</td>
+                        <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/edit`}>Edit</a> : null}</td>
+                        <td>{reservation.status === "booked" ? <button onClick={() => handleCancelRes(reservation.reservation_id)} data-reservation-id-cancel={reservation.reservation_id}>Cancel</button> : null}</td>
                         </tr>
                     ))}
                     </tbody>

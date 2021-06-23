@@ -8,6 +8,7 @@ import NewRes from "../components/NewRes";
 import NewTable from "../components/NewTable";
 import SeatRes from "../components/SeatRes";
 import Search from "../components/Search";
+import EditRes from "../components/EditRes";
 
 /**
  * Defines all the routes for the application.
@@ -30,6 +31,9 @@ function Routes() {
       </Route>
       <Route path="/reservations/:reservation_id/seat">
         <SeatRes />
+      </Route>
+      <Route path="/reservations/:reservation_id/edit">
+        <EditRes />
       </Route>
       <Route path="/reservations/new">
         <NewRes />

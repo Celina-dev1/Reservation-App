@@ -45,7 +45,7 @@ function Dashboard({ date }) {
         try { 
             await finishTable(table.table_id, abortController.signal);
             //update reservation status to 'finished'
-            await updateResStatus(table.reservation_id, { status: "finished" }, abortController.signal);
+            //await updateResStatus(table.reservation_id, {data: { status: "finished" }}, abortController.signal);
             //reload the dashboard
             await loadDashboard();
         } catch (error) {
@@ -57,6 +57,29 @@ function Dashboard({ date }) {
         }
       }
       finish();
+      return () => {
+        abortController.abort();
+      };
+    }
+  };
+
+  const handleCancelRes = (reservation_id) => {
+    const abortController = new AbortController();
+    if (window.confirm("Do you want to cancel this reservation? This cannot be undone.")) {
+      async function cancel() {
+        try { 
+            await updateResStatus(reservation_id, {data: { status: "cancelled" }}, abortController.signal);
+            //reload the dashboard
+            await loadDashboard();
+        } catch (error) {
+            if (error.name === "AbortError") {
+                console.log("Aborted");
+              } else {
+                throw error;
+              }
+        }
+      }
+      cancel();
       return () => {
         abortController.abort();
       };
@@ -83,6 +106,8 @@ function Dashboard({ date }) {
             <th scope="col">Number of Guests</th>
             <th scope="col">Reservation Status</th>
             <th scope="col">Seat Reservation</th>
+            <th scope="col">Edit Reservation</th>
+            <th scope="col">Cancel Reservation</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +120,8 @@ function Dashboard({ date }) {
               <td>{reservation.people}</td>
               <td data-reservation-id-status={reservation.reservation_id}>{reservation.status}</td>
               <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/seat`}>Seat</a> : null}</td>
+              <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/edit`}>Edit</a> : null}</td>
+              <td>{reservation.status === "booked" ? <button onClick={() => handleCancelRes(reservation.reservation_id)} data-reservation-id-cancel={reservation.reservation_id}>Cancel</button> : null}</td>
             </tr>
           ))}
         </tbody>

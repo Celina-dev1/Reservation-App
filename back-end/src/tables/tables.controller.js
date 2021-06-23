@@ -73,6 +73,17 @@ const reservationsService = require("../reservations/reservations.service");
       });
   };
 
+  function resNotSeated(req, res, next) {
+    if (res.locals.reservation.status === "seated") {
+      next({
+        status: 400,
+        message: "Reservation already seated.",
+      });
+    }
+    return next();
+  }
+  
+
   function bodyHasData(req, res, next) {
     const body = req.body.data;
     if (body) {
@@ -156,7 +167,7 @@ const reservationsService = require("../reservations/reservations.service");
 };
 
 async function finish(req, res) {
-    const data = await service.finish(res.locals.table.table_id);
+    const data = await service.finish(res.locals.table.table_id, res.locals.table.reservation_id);
     res.json({
         data,
         });
@@ -179,7 +190,8 @@ async function finish(req, res) {
         tableIsUnoccupied,
         asyncErrorBoundary(resIdExists),
         sufficientCapacity,
-        update,
+        resNotSeated,
+        asyncErrorBoundary(update),
     ],
     finish: [
         asyncErrorBoundary(tableIdExists),
