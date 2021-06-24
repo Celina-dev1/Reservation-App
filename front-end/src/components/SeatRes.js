@@ -40,10 +40,10 @@ function SeatRes() {
         }else {
             async function seat() {
                 try {
-                    await updateResStatus(reservation_id, {data: { status: "seated" } }, abortController.signal);
+                    
                     await seatTable(tableToUpdate.table_id, reservation_id, abortController.signal);
                     //update the reservation to have a status of 'seated'
-                    
+                    await updateResStatus(reservation_id, {data: { status: "seated" } }, abortController.signal);
                     history.push(`/dashboard?date=${reservation.reservation_date}`);
                 } catch (error) {
                     if (error.name === "AbortError") {
@@ -75,6 +75,7 @@ function SeatRes() {
     }
 
     //filter the tables to only map and display the tables that are free
+    const filteredTables = tables.filter((table) => table.reservation_id === null);
 
     return (
         <Fragment>
@@ -87,7 +88,7 @@ function SeatRes() {
                     onChange={handleChange}
                     className="form-control form-control-lg"
                 >
-                    {tables.map((table) => (
+                    {filteredTables.map((table) => (
                     <option key={table.table_id} value={table.table_id}>
                         {table.table_name} - {table.capacity}
                     </option>

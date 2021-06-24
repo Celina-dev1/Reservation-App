@@ -56,7 +56,12 @@ describe("US-01 - Create and list reservations - E2E", () => {
         path: ".screenshots/us-01-submit-after.png",
         fullPage: true,
       });
-
+      // console.log("start of selector")
+      // const elem  = await page.$('input[name=people]')
+      // const elem2  = await page.$('input[name=last_name]')
+      // console.log('********', elem, elem2)
+      // await expect(elem).toEqual(42)
+      // await expect(elem2).toEqual(42)
       await expect(page).toMatch(lastName);
     });
 

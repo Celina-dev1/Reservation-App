@@ -45,9 +45,10 @@ function Dashboard({ date }) {
         try { 
             await finishTable(table.table_id, abortController.signal);
             //update reservation status to 'finished'
-            //await updateResStatus(table.reservation_id, {data: { status: "finished" }}, abortController.signal);
+            await updateResStatus(table.reservation_id, {data: { status: "finished" }}, abortController.signal);
             //reload the dashboard
             await loadDashboard();
+            //history.push("/");
         } catch (error) {
             if (error.name === "AbortError") {
                 console.log("Aborted");

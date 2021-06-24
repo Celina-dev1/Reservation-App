@@ -7,6 +7,18 @@ function EditRes() {
     const history = useHistory();
     const { reservation_id } = useParams();
 
+    const initialFormState = {
+        first_name: "",
+        last_name: "",
+        mobile_number: "",
+        reservation_date: "YYYY-MM-DD",
+        reservation_time: "10:30",
+        people: 1,
+    };
+
+    const [currentRes, setCurrentRes] = useState({...initialFormState});
+    const [errors, setErrors] = useState([]);
+
     //get current reservation
     useEffect(() => {
         async function loadCurrentRes() {
@@ -16,8 +28,6 @@ function EditRes() {
         loadCurrentRes();
     }, [reservation_id]);
 
-    const [currentRes, setCurrentRes] = useState({});
-    const [errors, setErrors] = useState([]);
 
     const handleChange = ({ target }) => {
         if (target.name === "people") {
