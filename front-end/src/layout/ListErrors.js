@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import ErrorAlert from "../layout/ErrorAlert";
+import ErrorAlert from "./ErrorAlert";
 
 function ListErrors({errors}) {
     if (errors.length > 0) {

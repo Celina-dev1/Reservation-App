@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { listReservations, listTables, finishTable, updateResStatus } from "../utils/api";
-import { today, previous, next, formatAsTime } from "../utils/date-time";
+import { today, previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
+import ListReservations from "../reservations/ListReservations";
+import ListTables from "../tables/ListTables";
 
 /**
  * Defines the dashboard page.
@@ -97,57 +99,8 @@ function Dashboard({ date }) {
         <button onClick={() => history.push(`/dashboard?date=${today()}`)}>Today</button>
       </div>
       <ErrorAlert error={reservationsError} />
-      <table className="table table-striped table-dark">
-        <thead>
-          <tr>
-            <th scope="col">Reservation Time</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Phone Number</th>
-            <th scope="col">Number of Guests</th>
-            <th scope="col">Reservation Status</th>
-            <th scope="col">Seat Reservation</th>
-            <th scope="col">Edit Reservation</th>
-            <th scope="col">Cancel Reservation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservations.map((reservation) => (
-            <tr key={reservation.reservation_id}>
-              <td>{formatAsTime(reservation.reservation_time)}</td>
-              <td>{reservation.first_name}</td>
-              <td>{reservation.last_name}</td>
-              <td>{reservation.mobile_number}</td>
-              <td>{reservation.people}</td>
-              <td data-reservation-id-status={reservation.reservation_id}>{reservation.status}</td>
-              <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/seat`}>Seat</a> : null}</td>
-              <td>{reservation.status === "booked" ? <a href={`/reservations/${reservation.reservation_id}/edit`}>Edit</a> : null}</td>
-              <td>{reservation.status === "booked" ? <button onClick={() => handleCancelRes(reservation.reservation_id)} data-reservation-id-cancel={reservation.reservation_id}>Cancel</button> : null}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <table className="table table-striped table-dark">
-        <thead>
-          <tr>
-            <th scope="col">Table Name</th>
-            <th scope="col">Capacity</th>
-            <th scope="col">Status</th>
-            <th scope="col">Finish</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tables.map((table) => (
-            <tr key={table.table_id}>
-              <td>{table.table_name}</td>
-              <td>{table.capacity}</td>
-              <td data-table-id-status={table.table_id}>{table.reservation_id === null ? "free" : "occupied"}</td>
-              <td>{table.reservation_id !== null ? <button data-table-id-finish={table.table_id} onClick={() => handleFinish(table)}>Finish</button> : null}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ListReservations reservations={reservations} handleCancelRes={handleCancelRes} />
+      <ListTables tables={tables} handleFinish={handleFinish} />
     </main>
   );
 }

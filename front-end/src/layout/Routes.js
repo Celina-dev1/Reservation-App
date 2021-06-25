@@ -4,11 +4,11 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import { today } from "../utils/date-time";
-import NewRes from "../components/NewRes";
-import NewTable from "../components/NewTable";
-import SeatRes from "../components/SeatRes";
-import Search from "../components/Search";
-import EditRes from "../components/EditRes";
+import NewRes from "../reservations/NewRes";
+import NewTable from "../tables/NewTable";
+import SeatRes from "../reservations/SeatRes";
+import Search from "../reservations/Search";
+import EditRes from "../reservations/EditRes";
 
 /**
  * Defines all the routes for the application.

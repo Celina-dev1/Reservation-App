@@ -1,6 +1,6 @@
 import React, {Fragment, useState, useEffect} from "react";
 import { useHistory, useParams } from "react-router-dom";
-import ListErrors from "./ListErrors";
+import ListErrors from "../layout/ListErrors";
 import { updateReservation, readReservation } from "../utils/api";
 
 function EditRes() {
@@ -138,10 +138,6 @@ function EditRes() {
                     required
                 />  
 
-{/* 
-https://flaviocopes.com/react-conditional-rendering/
-https://flaviocopes.com/react-hook-useref/
-*/}
                 <label>Date:</label>
                 <input 
                     name="reservation_date"

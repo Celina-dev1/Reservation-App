@@ -5,7 +5,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { listTables, readReservation, seatTable, updateResStatus } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
-import ListErrors from "./ListErrors";
+import ListErrors from "../layout/ListErrors";
 
 function SeatRes() {
     const history = useHistory();
