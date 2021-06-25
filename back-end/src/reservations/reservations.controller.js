@@ -50,6 +50,16 @@ function bodyHasData(req, res, next) {
   });
 };
 
+// function bodyDataHas(propertyName) {
+//   return function (req, res, next) {
+//     const { data = {} } = req.body;
+//     if (data[propertyName]) {
+//       return next();
+//     }
+//     next({ status: 400, message: `Must include a ${propertyName}` });
+//   };
+// };
+
 function bodyHasFirstNameProperty(req, res, next) {
   const { data: { first_name } } = req.body;
   if (first_name) {
@@ -230,6 +240,13 @@ function initialStatusValid(req, res, next){
   }
   return next();
 }
+
+async function create(req, res, next) {
+  const data = await service.create(req.body.data)
+  
+  res.status(201).json({ data })  
+};
+
 async function list(req, res) {
   const { date, mobile_number } = req.query;
   if (date) {
@@ -244,12 +261,6 @@ async function list(req, res) {
       data,
       });
   }
-};
-
-async function create(req, res, next) {
-  const data = await service.create(req.body.data)
-  
-  res.status(201).json({ data })  
 };
 
 function read(req, res) {
@@ -282,8 +293,17 @@ async function updateStatus(req, res) {
   res.json({ data: updated });
 };
 
+// const has_first_name = bodyDataHas("first_name");
+// const has_last_name = bodyDataHas("last_name");
+// const has_mobile_number = bodyDataHas("mobile_number");
+// const has_reservation_date = bodyDataHas("reservation_date");
+// const has_reservation_time = bodyDataHas("reservation_time");
+// const has_people = bodyDataHas("people");
+// const has_capacity = bodyDataHas("capacity");
+// const has_table_name = bodyDataHas("table_name");
+// const has_reservation_id = bodyDataHas("reservation_id");
+
 module.exports = {
-  list: asyncErrorBoundary(list),
   create: [
     bodyHasData,
     bodyHasFirstNameProperty,
@@ -302,6 +322,7 @@ module.exports = {
     initialStatusValid,
     asyncErrorBoundary(create),
   ],
+  list: asyncErrorBoundary(list),
   read: [
     asyncErrorBoundary(reservationIdExists), 
     read

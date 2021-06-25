@@ -1,8 +1,9 @@
 import React, {Fragment, useState} from "react";
 import { useHistory } from "react-router-dom";
 import ListErrors from "../layout/ListErrors";
+import ErrorAlert from "../layout/ErrorAlert";
 import { createReservation } from "../utils/api";
-import ResForm from "./ResForm";
+//import { isTuesday, dateInPast, invalidTime } from "../utils/date-time-validation"
 
 
 function NewRes() {
@@ -12,94 +13,156 @@ function NewRes() {
         first_name: "",
         last_name: "",
         mobile_number: "",
-        reservation_date: "YYYY-MM-DD",
-        reservation_time: "10:30",
-        people: 1,
+        reservation_date: "",
+        reservation_time: "",
+        people: 0,
     };
-    
-    const [formData, setFormData] = useState({ ...initialFormState });
-    const [errors, setErrors] = useState([]);
 
-    const handleChange = ({ target }) => {
-        if (target.name === "people") {
-            setFormData({
-                ...formData,
-                [target.name]: target.valueAsNumber,
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [target.name]: target.value,
-            });
-        } 
+    const [reservation, setReservation] = useState({...initialFormState});
+    const [error, setError] = useState(null);
+
+    function handleChange({ target: { name, value } }) {
+        if (name === "people") {
+            setReservation((prevState) => ({
+                ...prevState,
+                [name]: Number(value),
+              }));
+        }
+        setReservation((prevState) => ({
+          ...prevState,
+          [name]: value,
+        }));
+    };
+
+    function validate(reservation){
+        const errors = []
+        function isFutureDate({ reservation_date, reservation_time }) {
+          const dt = new Date(`${reservation_date}T${reservation_time}`);
+          if (dt < new Date()) {
+              errors.push(new Error("Reservation must be set in the future"));
+          }
+        }
+        function isTuesday({ reservation_date }) {
+          const day = new Date(reservation_date).getUTCDay();
+          if (day === 2) {
+            errors.push(new Error("No reservations available on Tuesday."));
+          }
+        }
+        function isOpenHours({ reservation_time }){
+          const hour = parseInt(reservation_time.split(":")[0]);
+          const mins = parseInt(reservation_time.split(":")[1]);
+          if (hour <= 10 && mins <= 30){
+              errors.push(new Error("Restaurant is only open after 10:30 am"));
+          }
+          if (hour >= 22){
+              errors.push(new Error("Restaurant is closed after 10:00 pm"));
+          }
+        }
+        isFutureDate(reservation);
+        isTuesday(reservation);
+        isOpenHours(reservation);
+        return errors;
     };
 
     const handleNewRes = (e) => {
         e.preventDefault();
         const abortController = new AbortController();
-        console.log(formData)
-        
-        if (isTuesday(formData.reservation_date)) {
-            setErrors([...errors, "We are closed on Tuesdays"])
+        const resErrors = validate(reservation);
+
+        if (resErrors.length) {
+            return setError(resErrors);
         }
-        else if (dateInPast(formData.reservation_date)) {
-            setErrors([...errors, "Reservation date cannot be in the past"])
-        }
-        else if (invalidTime(formData.reservation_date, formData.reservation_time)) {
-            setErrors([...errors, "We accept reservations from 10:30am to 9:30pm"])
-        } else {
-            async function create() {
-                try {
-                    await createReservation(formData, abortController.signal);
-                    history.push(`/dashboard?date=${formData.reservation_date}`); // go to dashboard page of new reservation date
-                } catch (error) {
-                    if (error.name === "AbortError") {
-                        console.log("Aborted");
-                      } else {
-                        throw error;
-                      }
-                }
+        async function create() {
+            try {
+                await createReservation(reservation, abortController.signal);
+                history.push(`/dashboard?date=${reservation.reservation_date}`); // go to dashboard page of new reservation date
+            } catch (error) {
+                if (error.name === "AbortError") {
+                    console.log("Aborted");
+                  } else {
+                    throw error;
+                  }
             }
-            create();
-        } 
+        }
+        create();
     }
 
-    const isTuesday = (date) => {
-        const resDate = new Date(date);
-
-         if (resDate.getUTCDay() === 2) {
-             return true;
-         }
-         return false;
-    };
-
-    const dateInPast = (date) => {
-        const today = new Date();
-        const resDate = new Date(date);
-
-        if (resDate.toLocaleDateString() >= today.toLocaleDateString()) {
-            return false;
-        }
-        return true;
-    };
-
-    const invalidTime = (date, time) => {
-        const res = new Date(`${date} ${time}`);
-
-        if (res.getHours() < 10 || (res.getHours() === 10 && res.getMinutes() < 30)) {
-                return true;
-        }
-        else if (res.getHours() > 21 || (res.getHours() === 21 && res.getMinutes() > 30)) {
-            return true;
-        }
-            return false;
-    }
 
     return (
         <Fragment>
             <h2>Create New Reservation</h2>
-            <ListErrors errors={errors} />
-            <ResForm formData={formData} handleChange={handleChange} handleNewRes={handleNewRes} />
+            <ErrorAlert error={error} />
+            <form className="form-group" onSubmit={handleNewRes}>
+                <label>First Name:</label>
+                <input 
+                    name="first_name"
+                    type="text" 
+                    className="form-control"
+                    value={reservation.first_name}
+                    onChange={handleChange}
+                    required
+                />
+                
+                <label>Last Name:</label>
+                <input 
+                    name="last_name"
+                    type="text" 
+                    className="form-control"
+                    value={reservation.last_name}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label>Mobile Number:</label>
+                <input 
+                    name="mobile_number"
+                    type="tel" 
+                    className="form-control"
+                    value={reservation.mobile_number}
+                    onChange={handleChange}
+                    required
+                />  
+
+                <label>Date:</label>
+                <input 
+                    name="reservation_date"
+                    type="date" 
+                    className="form-control"
+                    value={reservation.reservation_date}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label>Time:</label>
+                <input 
+                    name="reservation_time"
+                    type="time" 
+                    className="form-control"
+                    value={reservation.reservation_time}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label>Number of guests:</label>
+                <input 
+                    name="people"
+                    type="number"
+                    min={1} 
+                    className="form-control"
+                    value={reservation.people}
+                    onChange={handleChange}
+                    required
+                />
+                
+                <button 
+                className="btn btn-secondary my-2 mr-2"
+                onClick={() => history.goBack()}>Cancel</button>
+                <button 
+                className="btn btn-primary my-2" 
+                type="submit">
+                    Submit
+                </button>
+            </form>
         </Fragment>
     )
 }

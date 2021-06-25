@@ -1,5 +1,13 @@
 const knex = require("../db/connection");
 
+
+function create(reservation) {
+    return knex("reservations")
+        .insert(reservation)
+        .returning("*")
+        .then((createRecords) => createRecords[0]);
+};
+
 async function list(date) {
     return knex("reservations")
         .select("*")
@@ -7,13 +15,6 @@ async function list(date) {
         .whereNot({"status": "finished"})
         .andWhereNot({"status": "cancelled"})
         .orderBy("reservation_time");
-};
-
-function create(reservation) {
-    return knex("reservations")
-        .insert(reservation)
-        .returning("*")
-        .then((createRecords) => createRecords[0]);
 };
 
 function read(reservation_id) {
@@ -41,8 +42,8 @@ function search(mobile_number) {
 
 
 module.exports = {
-    list,
     create,
+    list,
     read,
     update,
     search,

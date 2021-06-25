@@ -11,109 +11,101 @@ function EditRes() {
         first_name: "",
         last_name: "",
         mobile_number: "",
-        reservation_date: "YYYY-MM-DD",
-        reservation_time: "10:30",
-        people: 1,
+        reservation_date: "",
+        reservation_time: "",
+        people: 0,
     };
 
-    const [currentRes, setCurrentRes] = useState({...initialFormState});
-    const [errors, setErrors] = useState([]);
+    const [reservation, setReservation] = useState({...initialFormState});
+    const [errors, setErrors] = useState(null);
 
     //get current reservation
     useEffect(() => {
-        async function loadCurrentRes() {
-            const response = await readReservation(reservation_id);
-            setCurrentRes(response);
+        setErrors(null);
+        readReservation(reservation_id)
+          .then(setReservation)
+          .catch(setErrors);
+      }, [reservation_id]);
+
+
+    function handleChange({ target: { name, value } }) {
+        if (name === "people") {
+            setReservation((prevState) => ({
+                ...prevState,
+                [name]: Number(value),
+              }));
         }
-        loadCurrentRes();
-    }, [reservation_id]);
+        setReservation((prevState) => ({
+          ...prevState,
+          [name]: value,
+        }));
+    };
 
-
-    const handleChange = ({ target }) => {
-        if (target.name === "people") {
-            setCurrentRes({
-                ...currentRes,
-                [target.name]: target.valueAsNumber,
-            });
-        } else {
-            setCurrentRes({
-                ...currentRes,
-                [target.name]: target.value,
-            });
-        } 
+    function validate(reservation){
+        const errors = []
+        function isFutureDate({ reservation_date, reservation_time }) {
+          const dt = new Date(`${reservation_date}T${reservation_time}`);
+          if (dt < new Date()) {
+              errors.push(new Error("Reservation must be set in the future"));
+          }
+        }
+        function isTuesday({ reservation_date }) {
+          const day = new Date(reservation_date).getUTCDay();
+          if (day === 2) {
+            errors.push(new Error("No reservations available on Tuesday."));
+          }
+        }
+        function isOpenHours({ reservation_time }){
+          const hour = parseInt(reservation_time.split(":")[0]);
+          const mins = parseInt(reservation_time.split(":")[1]);
+          if (hour <= 10 && mins <= 30){
+              errors.push(new Error("Restaurant is only open after 10:30 am"));
+          }
+          if (hour >= 22){
+              errors.push(new Error("Restaurant is closed after 10:00 pm"));
+          }
+        }
+        isFutureDate(reservation);
+        isTuesday(reservation);
+        isOpenHours(reservation);
+        return errors;
     };
 
     const handleUpdateRes = (e) => {
         e.preventDefault();
         const abortController = new AbortController();
-        
-        if (isTuesday(currentRes.reservation_date)) {
-            setErrors([...errors, "We are closed on Tuesdays"])
+        const resErrors = validate(reservation);
+
+        if (resErrors.length) {
+            return setErrors(resErrors);
         }
-        else if (dateInPast(currentRes.reservation_date)) {
-            setErrors([...errors, "Reservation date cannot be in the past"])
-        }
-        else if (invalidTime(currentRes.reservation_date, currentRes.reservation_time)) {
-            setErrors([...errors, "We accept reservations from 10:30am to 9:30pm"])
-        } else {
-            async function update() {
-                try {
-                    await updateReservation(currentRes, abortController.signal);
-                    history.push(`/dashboard?date=${currentRes.reservation_date}`); // go to dashboard page of new reservation date
-                } catch (error) {
-                    if (error.name === "AbortError") {
-                        console.log("Aborted");
-                      } else {
-                        throw error;
-                      }
-                }
+        async function update() {
+            try {
+                await updateReservation(reservation, abortController.signal);
+                history.push(`/dashboard?date=${reservation.reservation_date}`);
+            } catch (error) {
+                if (error.name === "AbortError") {
+                    console.log("Aborted");
+                  } else {
+                    throw error;
+                  }
             }
-            update();
-        } 
+        }
+        update();
     }
 
-    const isTuesday = (date) => {
-        const resDate = new Date(date);
-
-         if (resDate.getUTCDay() === 2) {
-             return true;
-         }
-         return false;
-    };
-
-    const dateInPast = (date) => {
-        const today = new Date();
-        const resDate = new Date(date);
-
-        if (resDate.toLocaleDateString() >= today.toLocaleDateString()) {
-            return false;
-        }
-        return true;
-    };
-
-    const invalidTime = (date, time) => {
-        const res = new Date(`${date} ${time}`);
-
-        if (res.getHours() < 10 || (res.getHours() === 10 && res.getMinutes() < 30)) {
-                return true;
-        }
-        else if (res.getHours() > 21 || (res.getHours() === 21 && res.getMinutes() > 30)) {
-            return true;
-        }
-            return false;
-    }
 
     return (
         <Fragment>
-            <h2>Create New Reservation</h2>
-            <ListErrors errors={errors} />
+            <h2>Edit Reservation</h2>
+            {errors !== null && <ListErrors errors={errors} />}
             <form className="form-group" onSubmit={handleUpdateRes}>
                 <label>First Name:</label>
                 <input 
                     name="first_name"
                     type="text" 
                     className="form-control"
-                    value={currentRes.first_name}
+                    value={reservation.first_name}
                     onChange={handleChange}
                     required
                 />
@@ -123,7 +115,7 @@ function EditRes() {
                     name="last_name"
                     type="text" 
                     className="form-control"
-                    value={currentRes.last_name}
+                    value={reservation.last_name}
                     onChange={handleChange}
                     required
                 />
@@ -131,9 +123,9 @@ function EditRes() {
                 <label>Mobile Number:</label>
                 <input 
                     name="mobile_number"
-                    type="text" 
+                    type="tel" 
                     className="form-control"
-                    value={currentRes.mobile_number}
+                    value={reservation.mobile_number}
                     onChange={handleChange}
                     required
                 />  
@@ -143,7 +135,7 @@ function EditRes() {
                     name="reservation_date"
                     type="date" 
                     className="form-control"
-                    value={currentRes.reservation_date}
+                    value={reservation.reservation_date}
                     onChange={handleChange}
                     required
                 />
@@ -153,7 +145,7 @@ function EditRes() {
                     name="reservation_time"
                     type="time" 
                     className="form-control"
-                    value={currentRes.reservation_time}
+                    value={reservation.reservation_time}
                     onChange={handleChange}
                     required
                 />
@@ -162,9 +154,9 @@ function EditRes() {
                 <input 
                     name="people"
                     type="number"
-                    min="1" 
+                    min={1}
                     className="form-control"
-                    value={currentRes.people}
+                    value={reservation.people}
                     onChange={handleChange}
                     required
                 />
