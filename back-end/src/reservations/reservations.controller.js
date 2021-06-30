@@ -4,6 +4,33 @@
  const service = require("./reservations.service");
  const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
  
+ function hasValidFields(req, res, next) {
+  const { data = {} } = req.body;
+  const validFields = new Set([
+    "first_name",
+    "last_name",
+    "mobile_number",
+    "reservation_date",
+    "reservation_time",
+    "people",
+    "status",
+    "created_at",
+    "updated_at",
+    "reservation_id"
+  ]);
+
+  const invalidFields = Object.keys(data).filter(
+    field => !validFields.has(field)
+  );
+
+  if (invalidFields.length)
+    return next({
+      status: 400,
+      message: `Invalid field(s): ${invalidFields.join(", ")}`,
+    });
+  next();
+};
+
  async function reservationIdExists(req, res, next) {
    const { reservation_id } = req.params;
    const reservation = await service.read(reservation_id);
@@ -39,36 +66,14 @@
    });
  };
  
- function bodyHasData(req, res, next) {
-   const body = req.body.data;
-   if (body) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "No data received",
-   });
- };
- 
- // function bodyDataHas(propertyName) {
- //   return function (req, res, next) {
- //     const { data = {} } = req.body;
- //     if (data[propertyName]) {
- //       return next();
- //     }
- //     next({ status: 400, message: `Must include a ${propertyName}` });
- //   };
- // };
- 
- function bodyHasFirstNameProperty(req, res, next) {
-   const { data: { first_name } } = req.body;
-   if (first_name) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include a first_name",
-   });
+ function bodyDataHas(propertyName) {
+   return function (req, res, next) {
+     const { data = {} } = req.body;
+     if (data[propertyName]) {
+       return next();
+     }
+     next({ status: 400, message: `Must include a ${propertyName}` });
+   };
  };
  
  function firstNamePropertyIsValid(req, res, next) {
@@ -83,17 +88,6 @@
    return next();
  };
  
- function bodyHasLastNameProperty(req, res, next) {
-   const { data: { last_name } } = req.body;
-   if (last_name) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include a last_name",
-   });
- };
- 
  function lastNamePropertyIsValid(req, res, next) {
    const { data: { last_name } } = req.body;
    const invalidResult = [''];
@@ -106,17 +100,6 @@
    return next();
  };
  
- function bodyHasMobileNumberProperty(req, res, next) {
-   const { data: { mobile_number } } = req.body;
-   if (mobile_number) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include a mobile_number",
-   });
- };
- 
  function mobileNumberPropertyIsValid(req, res, next) {
    const { data: { mobile_number } } = req.body;
    const justNums = mobile_number.replace(/\D/g, '');
@@ -127,17 +110,6 @@
            }); 
    }
    return next();
- };
- 
- function bodyHasDateProperty(req, res, next) {
-   const { data: { reservation_date } } = req.body;
-   if (reservation_date) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include a reservation_date",
-   });
  };
  
  function dateIsFutureDate(req, res, next) {
@@ -165,17 +137,6 @@
        });
    }
    return next(); 
- };
- 
- function bodyHasTimeProperty(req, res, next) {
-   const { data: { reservation_time } } = req.body;
-   if (reservation_time) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include a reservation_time",
-   });
  };
  
  function timeIsDuringOpenHours(req, res, next) {
@@ -206,17 +167,6 @@
    return next();
  };
  
- function bodyHasPeopleProperty(req, res, next) {
-   const { data: { people } } = req.body;
-   if (people) {
-     return next();
-   }
-   next({
-     status: 400,
-     message: "Reservation must include number of people",
-   });
- };
- 
  function peoplePropertyIsValid(req, res, next) {
    const { data: { people } } = req.body;
    // Convert to actual data type
@@ -239,7 +189,7 @@
      })
    }
    return next();
- }
+ };
  
  async function create(req, res, next) {
    const data = await service.create(req.body.data)
@@ -293,63 +243,60 @@
    res.json({ data: updated });
  };
  
- // const has_first_name = bodyDataHas("first_name");
- // const has_last_name = bodyDataHas("last_name");
- // const has_mobile_number = bodyDataHas("mobile_number");
- // const has_reservation_date = bodyDataHas("reservation_date");
- // const has_reservation_time = bodyDataHas("reservation_time");
- // const has_people = bodyDataHas("people");
- // const has_capacity = bodyDataHas("capacity");
- // const has_table_name = bodyDataHas("table_name");
- // const has_reservation_id = bodyDataHas("reservation_id");
+const has_first_name = bodyDataHas("first_name");
+const has_last_name = bodyDataHas("last_name");
+const has_mobile_number = bodyDataHas("mobile_number");
+const has_reservation_date = bodyDataHas("reservation_date");
+const has_reservation_time = bodyDataHas("reservation_time");
+const has_people = bodyDataHas("people");
  
  module.exports = {
    create: [
-     bodyHasData,
-     bodyHasFirstNameProperty,
-     firstNamePropertyIsValid,
-     bodyHasLastNameProperty,
-     lastNamePropertyIsValid,
-     bodyHasMobileNumberProperty,
-     mobileNumberPropertyIsValid,
-     bodyHasDateProperty,
-     dateIsFutureDate,
-     dayNotTuesday,
-     bodyHasTimeProperty,
-     timeIsDuringOpenHours,
-     bodyHasPeopleProperty,
-     peoplePropertyIsValid,
-     initialStatusValid,
-     asyncErrorBoundary(create),
+    hasValidFields,
+    has_first_name,
+    has_last_name,
+    has_mobile_number,
+    has_reservation_date,
+    has_reservation_time,
+    has_people,
+    firstNamePropertyIsValid,
+    lastNamePropertyIsValid,
+    mobileNumberPropertyIsValid,
+    dateIsFutureDate,
+    dayNotTuesday,
+    timeIsDuringOpenHours,
+    peoplePropertyIsValid,
+    initialStatusValid,
+    asyncErrorBoundary(create),
    ],
    list: asyncErrorBoundary(list),
    read: [
-     asyncErrorBoundary(reservationIdExists), 
-     read
+    asyncErrorBoundary(reservationIdExists), 
+    read
    ],
    updateRes: [
-     asyncErrorBoundary(reservationIdExists), 
-     bodyHasData,
-     bodyHasFirstNameProperty,
-     firstNamePropertyIsValid,
-     bodyHasLastNameProperty,
-     lastNamePropertyIsValid,
-     bodyHasMobileNumberProperty,
-     mobileNumberPropertyIsValid,
-     bodyHasDateProperty,
-     dateIsFutureDate,
-     dayNotTuesday,
-     bodyHasTimeProperty,
-     timeIsDuringOpenHours,
-     bodyHasPeopleProperty,
-     peoplePropertyIsValid,
-     initialStatusValid,
-     asyncErrorBoundary(updateRes),
+    asyncErrorBoundary(reservationIdExists), 
+    hasValidFields,
+    has_first_name,
+    has_last_name,
+    has_mobile_number,
+    has_reservation_date,
+    has_reservation_time,
+    has_people,
+    firstNamePropertyIsValid,
+    lastNamePropertyIsValid,
+    mobileNumberPropertyIsValid,
+    dateIsFutureDate,
+    dayNotTuesday,
+    timeIsDuringOpenHours,
+    peoplePropertyIsValid,
+    initialStatusValid,
+    asyncErrorBoundary(updateRes),
    ],
    updateStatus: [
-     asyncErrorBoundary(reservationIdExists),
-     statusNotFinished,
-     newStatusValid,
-     asyncErrorBoundary(updateStatus),
+    asyncErrorBoundary(reservationIdExists),
+    statusNotFinished,
+    newStatusValid,
+    asyncErrorBoundary(updateStatus),
    ]
  };
