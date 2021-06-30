@@ -3,8 +3,11 @@ import { listReservations, listTables, finishTable, cancelReservation } from "..
 import ErrorAlert from "../layout/ErrorAlert";
 import Reservations from "./Reservations";
 import Tables from "./Tables";
+import { useHistory } from "react-router";
+import { previous, next, today } from "../utils/date-time";
 
 function Dashboard({ date }) {
+  const history = useHistory();
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([]);
@@ -36,6 +39,11 @@ function Dashboard({ date }) {
   return (
     <main>
       <h1>Dashboard</h1>
+      <div>
+        <button onClick={() => history.push(`/dashboard?date=${previous(date)}`)}>Previous</button>
+        <button onClick={() => history.push(`/dashboard?date=${today()}`)}>Today</button>
+        <button onClick={() => history.push(`/dashboard?date=${next(date)}`)}>Next</button>
+      </div>
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations</h4>
       </div>

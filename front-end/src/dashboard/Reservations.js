@@ -18,7 +18,6 @@ function Reservations({onCancel, reservations = [] }) {
     reservations.map((reservation) => {
       return (
         <div className="form-group row" key={reservation.reservation_id}>
-          <div className="col-sm-1">{reservation.reservation_id}</div>
           <div className="col-sm-1">{reservation.first_name}, {reservation.last_name}</div>
           <div className="col-sm-1">{reservation.mobile_number}</div>
           <div className="col-sm-1">{reservation.reservation_date}</div>
@@ -29,7 +28,6 @@ function Reservations({onCancel, reservations = [] }) {
               <div className="col-sm-1">
                 <Link className="btn" to={`/reservations/${reservation.reservation_id}/seat`}>seat</Link>
                 <Link className="btn" to={`/reservations/${reservation.reservation_id}/edit`}>edit</Link>
-                <Link className="btn" to={`/reservations/${reservation.reservation_id}/cancel`}>cancel</Link>
                 <button type="button" className="btn cancel" data-reservation-id-cancel={reservation.reservation_id} onClick={cancelHandler}>Cancel</button>
               </div>
           ) : ( "" )}
