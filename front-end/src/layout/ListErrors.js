@@ -6,7 +6,7 @@ function ListErrors({errors}) {
         return (
             <Fragment>
                 {errors.map((error) => (
-                <ErrorAlert error={error}/>))}
+                <ErrorAlert key={error} error={error}/>))}
             </Fragment>
         )
     }
