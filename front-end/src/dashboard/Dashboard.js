@@ -6,7 +6,6 @@ import Tables from "./Tables";
 import { useHistory } from "react-router";
 import { previous, next, today } from "../utils/date-time";
 
-
 function Dashboard({ date }) {
   const history = useHistory();
   const [reservations, setReservations] = useState([]);
