@@ -18,12 +18,12 @@ function Tables({onFinish, tables = [] }) {
 
   const rows = tables.map((table) => {
       return (
-        <div class="col-sm-12 col-md-6 col-lg-4">
-          <div key={table.table_id} class="card mb-1">
-            <div class="card-body">
-              <h5 class="card-title">{table.table_name}</h5>
-              <p class="card-text">Capacity: {table.capacity}</p>
-              <p class="card-text" data-table-id-status={table.table_id}>{table.reservation_id ? "Occupied" : "Free"}</p>
+        <div key={table.table_id} className="col-sm-12 col-md-6 col-lg-4">
+          <div className="card mb-1">
+            <div className="card-body">
+              <h5 className="card-title">{table.table_name}</h5>
+              <p className="card-text">Capacity: {table.capacity}</p>
+              <p className="card-text" data-table-id-status={table.table_id}>{table.reservation_id ? "Occupied" : "Free"}</p>
               {table.reservation_id ?
                 <button 
                   type="button" 
@@ -41,7 +41,7 @@ function Tables({onFinish, tables = [] }) {
     });
     
   return tables.length ? (
-    <div class="row">
+    <div className="row">
       {rows}
     </div>
   ) : (

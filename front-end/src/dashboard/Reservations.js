@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatAsTime } from "../utils/date-time";
+import { formatAsTime, formatAsStandardTime, reformatDate } from "../utils/date-time";
 
 function Reservations({onCancel, reservations = [] }) {
   function cancelHandler({
@@ -18,13 +18,13 @@ function Reservations({onCancel, reservations = [] }) {
   const rows = reservations.map((reservation) => {
       return (
         <div key={reservation.reservation_id} className="card mb-1">
-          <div class="card-body">
-            <h5 class="card-title">{reservation.first_name} {reservation.last_name}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{formatAsTime(reservation.reservation_time)}</h6>
-            <p class="card-text">{reservation.mobile_number}</p>
-            <p class="card-text">{reservation.reservation_date}</p>
-            <p class="card-text">Party Size: {reservation.people}</p>
-            <p class="card-text" data-reservation-id-status={reservation.reservation_id}>Status: {reservation.status}</p>
+          <div className="card-body">
+            <h5 className="card-title">{reservation.first_name} {reservation.last_name}</h5>
+            <h6 className="card-subtitle mb-2 text-muted">{formatAsStandardTime(formatAsTime(reservation.reservation_time))}</h6>
+            <p className="card-text">{reservation.mobile_number}</p>
+            <p className="card-text">{reformatDate(reservation.reservation_date)}</p>
+            <p className="card-text">Party Size: {reservation.people}</p>
+            <p className="card-text" data-reservation-id-status={reservation.reservation_id}>Status: {reservation.status}</p>
             {reservation.status === "booked" ? (
               <div>
                   <Link className="btn btn-dark m-2" to={`/reservations/${reservation.reservation_id}/seat`}>seat</Link>
