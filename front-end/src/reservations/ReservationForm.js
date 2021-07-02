@@ -100,69 +100,41 @@ function ReservationForm(){
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">First name:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="first_name" value={reservation.first_name} onChange={changeHandler} />
-=======
-                    <input name="first_name" value={reservation.first_name} onChange={changeHandler} />
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
                 </div>
             </div>
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Last name:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="last_name" value={reservation.last_name} onChange={changeHandler} />
-=======
-                    <input name="last_name" value={reservation.last_name} onChange={changeHandler} />
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
                 </div>
             </div>
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Mobile Number:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="mobile_number" type="tel" value={reservation.mobile_number} onChange={changeHandler}/>
-=======
-                    <input name="mobile_number" type="tel" value={reservation.mobile_number} onChange={changeHandler}/>
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
                 </div>
             </div>
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Reservation Date:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="reservation_date" type="date" value={reservation.reservation_date} onChange={changeHandler} />
-=======
-                    <input name="reservation_date" type="date" value={reservation.reservation_date} onChange={changeHandler} />
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
                 </div>
             </div>
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Time:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="reservation_time" type="time" value={reservation.reservation_time} onChange={changeHandler} />
-=======
-                    <input name="reservation_time" type="time" value={reservation.reservation_time} onChange={changeHandler} />
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
                 </div>
             </div>
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Number of people:</label>
                 <div className="col-sm-10">
-<<<<<<< HEAD
                     <input className="form-control" name="people" type="number" min={1} value={reservation.people} onChange={changeHandlerNum} />
                 </div>
             </div>
             <button className="btn btn-success mr-2 mb-2" type="submit">Submit</button>
             <button className="btn btn-secondary mb-2" type="button" onClick={() => history.goBack()}>Cancel</button>
-=======
-                    <input name="people" type="number" min={1} value={reservation.people} onChange={changeHandlerNum} />
-                </div>
-            </div>
-            <button type="submit">Submit</button>
-            <button type="button" onClick={() => history.goBack()}>Cancel</button>
->>>>>>> 9cdf1a269e2664727bf92af2d09386a44aad8266
         </form>
     )
 }
