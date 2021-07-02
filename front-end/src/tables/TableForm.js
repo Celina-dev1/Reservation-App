@@ -47,7 +47,7 @@ function TableForm(){
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Table name:</label>
                 <div className="col-sm-10">
-                    <input className="form-control" name="table_name" minlength={2} required={true} value={table.table_name} onChange={changeHandler} />
+                    <input className="form-control" name="table_name" minLength={2} required={true} value={table.table_name} onChange={changeHandler} />
                 </div>
             </div>
             <div className="form-group row">

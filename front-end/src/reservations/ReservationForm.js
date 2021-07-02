@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { createReservation } from "../utils/api";
 import ReservationErrors from "./ReservationError";
 
-function ReservationForm(){
+function ReservationForm() {
     const history = useHistory();
     const initialState = {
         "first_name": "",
@@ -51,15 +51,15 @@ function ReservationForm(){
           }
         }
 
-        function isOpenHours({ reservation_time }){
+        function isOpenHours({ reservation_time }) {
           const hour = parseInt(reservation_time.split(":")[0]);
           const mins = parseInt(reservation_time.split(":")[1]);
 
-          if (hour <= 10 && mins <= 30){
+          if (hour <= 10 && mins <= 30) {
               errors.push(new Error("Restaurant is only open after 10:30 am"));
           }
 
-          if (hour >= 22){
+          if (hour >= 22) {
               errors.push(new Error("Restaurant is closed after 10:00 pm"));
           }
         }
@@ -72,7 +72,7 @@ function ReservationForm(){
     }
 
 
-    function submitHandler(event){
+    function submitHandler(event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -88,7 +88,6 @@ function ReservationForm(){
           const res_date = createdReservation.reservation_date.match(/\d{4}-\d{2}-\d{2}/)[0];
           history.push(
           `/dashboard?date=`+res_date
-            // `dashboard?date=${reservation_date}`
           )
         })
       .catch(setError);

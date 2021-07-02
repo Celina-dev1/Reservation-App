@@ -4,7 +4,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { readReservation, updateReservation } from "../utils/api";
 import ReservationErrors from "./ReservationError";
 
-function ReservationEdit(){
+function ReservationEdit() {
     const history = useHistory();
 
     const { reservation_id } = useParams();
@@ -26,23 +26,23 @@ function ReservationEdit(){
         .catch(setError);
     }, [reservation_id]);
 
-    // Similar to Form index.js from flashcards project:
     const [reservation, setReservation] = useState(initialState);
+
     function changeHandler({ target: { name, value } }) {
       setReservation((prevState) => ({
         ...prevState,
         [name]: value,
       }));
-    }
+    };
 
     function changeHandlerNum({ target: { name, value } }) {
       setReservation((prevState) => ({
         ...prevState,
         [name]: Number(value),
       }));
-    }
+    };
 
-    function validate(reservation){
+    function validate(reservation) {
 
         const errors = []
 
@@ -60,15 +60,15 @@ function ReservationEdit(){
           }
         }
 
-        function isOpenHours({ reservation_time }){
+        function isOpenHours({ reservation_time }) {
           const hour = parseInt(reservation_time.split(":")[0]);
           const mins = parseInt(reservation_time.split(":")[1]);
 
-          if (hour <= 10 && mins <= 30){
+          if (hour <= 10 && mins <= 30) {
               errors.push(new Error("Restaurant is only open after 10:30 am"));
           }
 
-          if (hour >= 22){
+          if (hour >= 22) {
               errors.push(new Error("Restaurant is closed after 10:00 pm"));
           }
         }
@@ -78,10 +78,10 @@ function ReservationEdit(){
         isOpenHours(reservation);
 
         return errors;
-    }
+    };
 
 
-    function submitHandler(event){
+    function submitHandler(event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -105,6 +105,7 @@ function ReservationEdit(){
 
     return (
       <div className="mt-3 font">
+        <h1 className="text-center">Edit Reservation</h1>
         <form onSubmit={submitHandler}>
             <ReservationErrors errors={error} />
             

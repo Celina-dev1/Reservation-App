@@ -53,11 +53,10 @@
  }
  
  /**
-  * Retrieves all existing reservation.
+  * Retrieves all existing reservations.
   * @returns {Promise<[reservation]>}
-  *  a promise that resolves to a possibly empty array of reservation saved in the database.
+  *  a promise that resolves to a possibly empty array of reservations saved in the database.
   */
- 
  export async function listReservations(params, signal) {
    const url = new URL(`${API_BASE_URL}/reservations`);
    Object.entries(params).forEach(([key, value]) =>
@@ -68,11 +67,19 @@
      .then(formatReservationTime);
  }
  
+ /**
+  * Retrieves all existing tables.
+  * @returns {Promise<[table]>}
+  *  a promise that resolves to a possibly empty array of tables saved in the database.
+  */
  export async function listTables(signal) {
    const url = `${API_BASE_URL}/tables`;
    return await fetchJson(url, { headers, signal }, []);
  }
  
+ /**
+  * Creates a new reservation.
+  */
  export async function createReservation(reservation, signal) {
    const url = `${API_BASE_URL}/reservations`;
    const options = {
@@ -84,8 +91,9 @@
    return await fetchJson(url, options, reservation);
  }
  
- // Note: These functions are found in api.js from the e2e folder
- 
+ /**
+  * Creates a new table.
+  */
  export async function createTable(table, signal) {
    const url = `${API_BASE_URL}/tables`;
    const options = {
@@ -97,6 +105,9 @@
    return await fetchJson(url, options, table);
  }
  
+  /**
+  * Seats a reservation at the given table. Updates table with reservation_id
+  */
  export async function seatReservation(reservation_id, table_id) {
    const url = `${API_BASE_URL}/tables/${table_id}/seat`;
    const options = {
@@ -107,6 +118,9 @@
    return await fetchJson(url, options, {});
  }
  
+  /**
+  * Retrieves an individual reservation given a reservation_id.
+  */
  export async function readReservation(reservation_id, signal) {
    const url = `${API_BASE_URL}/reservations/${reservation_id}`;
    return await fetchJson(url, { headers, signal }, {})
@@ -114,6 +128,9 @@
      .then(formatReservationTime)
  }
  
+  /**
+  * Removes the reservation from the given table and makes the table available to seat new guests.
+  */
  export async function finishTable(table_id, reservation_id) {
    const url = `${API_BASE_URL}/tables/${table_id}/seat`;
    const options = {
@@ -123,6 +140,9 @@
    return await fetchJson(url, options, {});
  }
  
+  /**
+  * Updates the reservation with the given resrevation_id status to 'cancelled'.
+  */
  export async function cancelReservation(reservationId, signal) {
    const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
    const options = {
@@ -138,6 +158,9 @@
    return await fetchJson(url, options, {});
  }
  
+  /**
+  * Updates the reservation with the given reservation_id.
+  */
  export async function updateReservation(reservation, signal) {
    const { reservation_date, reservation_time, reservation_id } = reservation;
    const url = `${API_BASE_URL}/reservations/${reservation_id}`;

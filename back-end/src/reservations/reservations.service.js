@@ -27,8 +27,7 @@ function read(reservation_id) {
 function update(reservation_id, updatedRes) {
     return knex("reservations")
         .where({ reservation_id: reservation_id })
-        .update(updatedRes, "*")
-        //.then((updateRecords) => updateRecords[0]);
+        .update(updatedRes, "*");
 };
 
 function search(mobile_number) {

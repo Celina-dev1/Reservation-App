@@ -81,13 +81,20 @@ export function next(currentDate) {
   return asDateString(date);
 }
 
+/**
+ * Format a time string in standard am/pm time instead of 24 hour time.
+ * @param time
+ *  HH:MM time string
+ * @returns {*}
+ *  the specified time string formatted as HH:MM am/pm.
+ */
 export function formatAsStandardTime(time) {
-  const hour = parseInt(time.split(":")[0]);
+  const hour = time.split(":")[0];
   const mins = time.split(":")[1];
 
   const AmOrPm = hour >=12 ? "pm" : "am";
 
-  if (hour > 12) {
+  if (Number(hour) > 12) {
     const standardHour = hour % 12;
     return (
       `${standardHour}:${mins}${AmOrPm}`
@@ -98,6 +105,13 @@ export function formatAsStandardTime(time) {
   )
 }
 
+/**
+ * Reformats date given as YYYY-MM-DD to dayOfWeek MM-DD-YYYY.
+ * @param date
+ *  a date string in YYYY-MM-DD format.
+ * @returns {*}
+ *  the date formatted as dayOfWeek MM-DD-YYYY.
+ */
 export function formatDateWithDay(date) {
   const year = date.split("-")[0];
   const month = date.split("-")[1];
@@ -111,6 +125,13 @@ export function formatDateWithDay(date) {
   )
 }
 
+/**
+ * Reformats date given as YYYY-MM-DD to MM-DD-YYYY.
+ * @param date
+ *  a date string in YYYY-MM-DD format.
+ * @returns {*}
+ *  the date formatted as MM-DD-YYYY.
+ */
 export function reformatDate(date) {
   const year = date.split("-")[0];
   const month = date.split("-")[1];

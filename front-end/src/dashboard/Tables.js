@@ -27,7 +27,7 @@ function Tables({onFinish, tables = [] }) {
               {table.reservation_id ?
                 <button 
                   type="button" 
-                  className="btn" 
+                  className="btn btn-danger" 
                   data-table-id-finish={table.table_id} 
                   data-reservation-id-finish={table.reservation_id}
                   onClick={finishHandler}
@@ -41,7 +41,7 @@ function Tables({onFinish, tables = [] }) {
     });
     
   return tables.length ? (
-    <div className="row">
+    <div className="row mb-3">
       {rows}
     </div>
   ) : (

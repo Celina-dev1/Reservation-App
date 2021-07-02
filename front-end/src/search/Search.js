@@ -25,8 +25,8 @@ function Search() {
   }
 
   return (
-    <main className="text-center font">
-      <h1>Search reservations</h1>
+    <main className="text-center font mt-2">
+      <h1>Search Reservations</h1>
       <form onSubmit={submitHandler}>
           <div className="row justify-content-center">
             <div className="form-group col-md-4 col-sm-12">

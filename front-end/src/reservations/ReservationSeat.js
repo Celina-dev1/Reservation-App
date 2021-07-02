@@ -30,17 +30,25 @@ function ReservationSeat() {
       .then(() => history.push("/dashboard"));
   }
 
+  //only display tables that are free and who's capacity can fit the current reservation
+  const filteredTables = tables.filter((table) => table.reservation_id === null && table.capacity >= reservation.people);
+
   return (
     <main className="font">
-      {JSON.stringify(reservation)}
-      <h1>Seat This Reservation</h1>
+      <h1 className="text-center mt-2">Seat Reservation</h1>
+      <div className="card text-center mb-3">
+        <div className="card-body">
+          <h5 className="card-title">{reservation.first_name} {reservation.last_name}</h5>
+          <p className="card-text">Party Size: {reservation.people}</p>
+        </div>
+      </div>
       <form onSubmit={submitHandler}>
         <fieldset>
           <div className="row">
             <div className="col">
               <select id="table_id" name="table_id" value={tableId} required={true} onChange={changeHandler}>
                 <option value="">Choose a Table</option>
-                {tables.map((table) => (
+                {filteredTables.map((table) => (
                   <option key={table.table_id} value={table.table_id}>
                     {table.table_name} - {table.capacity}
                   </option>

@@ -20,6 +20,8 @@ function read(table_id) {
         .first();
 };
 
+//keeps the reservations table and the tables table in sync by updating reservation status
+//to seated and adding the reservation_id to the table in a knex transaction
 function update(updatedTable) {
     return knex.transaction((trx) => {
         return knex("reservations")
@@ -37,6 +39,8 @@ function update(updatedTable) {
       });
 };
 
+//keeps the reservations table and the tables table in sync by updating reservation status
+//to finished and removing the reservation_id from the table in a knex transaction
 function finish(table_id, reservation_id) {
     return knex.transaction((trx) => {
         return knex("reservations")

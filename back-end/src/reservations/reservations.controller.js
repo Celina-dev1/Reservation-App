@@ -4,6 +4,7 @@
  const service = require("./reservations.service");
  const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
  
+ //return 400 if a field that is not a valid field is included in the request body
  function hasValidFields(req, res, next) {
   const { data = {} } = req.body;
   const validFields = new Set([
@@ -112,6 +113,7 @@
    return next();
  };
 
+ //checks that the time entered is a valid time string
  function isTime(req, res, next){
   const { data = {} } = req.body;
  
@@ -171,7 +173,6 @@
  
  function peoplePropertyIsValid(req, res, next) {
    const { data: { people } } = req.body;
-   // Convert to actual data type
    const peopleNum = parseInt(people);
    if (isNaN(peopleNum) || peopleNum < 1) {
        next({
@@ -182,6 +183,7 @@
    return next();
  };
  
+ //when booked reservation initial status must be 'booked'
  function initialStatusValid(req, res, next){
    const { data: { status } } = req.body;
    if(status == "seated" || status == "finished"){
