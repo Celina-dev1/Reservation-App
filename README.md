@@ -44,7 +44,7 @@
 #### Edit Reservation
 - The `reservations/:reservation_id/edit` page displays a form prepopulated with the information associated with the given `reservation_id`. Changing any information then clicking `Submit` updates the reservation and displays the dashboard for that reservation's date.  
 
-![edit reservation page](./screenshots/DashboardMobile.png)
+![edit reservation page](./screenshots/EditRes.png)
 
 
 #### Seat a Reservation
@@ -56,7 +56,7 @@
 #### Search
 - The `/search` page displays a search box to search reservations by telephone number. Entering a phone number and clicking `Search` displays all reservations associated with that phone number, ordered by reservation date. If no reservations match the given phone number `No Reservations Found` is displayed.  
 
-![search page](./screenshots/DashboardMobile.png)
+![search page](./screenshots/Search.png)
 
 
 ## Installation
