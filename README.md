@@ -32,17 +32,22 @@
 ![mobile dashboard](./screenshots/DashboardMobile.png)
 - The dashboard displays all reservations for a given date as well as all tables and their status.
 
+
 ![new reservation page](./screenshots/CreateResMobile.png)
 - The `reservations/new` page displays a form with reservation information fields. Clicking `Submit` creates the reservation and displays the dashboard for that reservation's date.
+
 
 ![edit reservation page](./screenshots/DashboardMobile.png)
 - The `reservations/:reservation_id/edit` page displays a form prepopulated with the information associated with the given `reservation_id`. Changing any information then clicking `Submit` updates the reservation and displays the dashboard for that reservation's date.
 
+
 ![seat reservation page](./screenshots/SeatRes.png)
 - The `reservations/:reservation_id/seat` page displays a drop-down select to choose which table to seat the reservation at. Only tables that are unoccupied and have a capacity large enough to fit the reservation are offered as options.
 
+
 ![search page](./screenshots/DashboardMobile.png)
 - The `/search` page displays a search box to search reservations by telephone number. Entering a phone number and clicking `Search` displays all reservations associated with that phone number, ordered by reservation date. If no reservations match the given phone number `No Reservations Found` is displayed.
+
 
 ## Installation
 
